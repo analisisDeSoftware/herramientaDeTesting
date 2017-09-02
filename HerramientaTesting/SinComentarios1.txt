@@ -1,0 +1,206 @@
+package contador;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+
+import javax.swing.JList;
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.ListModel;
+import javax.swing.JScrollBar;
+import javax.swing.AbstractListModel;
+import javax.swing.JScrollPane;
+
+public class Testing extends JFrame {
+
+private JPanel contentPane;
+
+private Contador contador;
+private String archivoSeleccionado;
+private String claseSeleccionada;
+private String metodoSeleccionado;
+
+private DefaultListModel<String> dmArchivos;
+private DefaultListModel<String> dmClases;
+private DefaultListModel<String> dmMetodos;
+private DefaultListModel<String> dmCodigo;
+private JList listArchivosJava;
+private JList listClases;
+private JList listMetodos;
+private JList listCodigo;
+
+private JScrollPane scrollPane;
+private JScrollPane scrollPane_1;
+private JScrollPane scrollPane_2;
+private JScrollPane scrollPane_3;
+
+public static void main(String[] args) {
+EventQueue.invokeLater(new Runnable() {
+public void run() {
+try {
+for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+if ("Nimbus".equals(info.getName())) {
+UIManager.setLookAndFeel(info.getClassName());
+break;
+}
+}
+Testing frame = new Testing();
+frame.setResizable(false);
+frame.setLocationRelativeTo(null);
+frame.setTitle("Herramienta de Testing");
+frame.setVisible(true);
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+});
+}
+
+
+public Testing() {
+setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+setBounds(100, 100, 1200, 800);
+contentPane = new JPanel();
+contentPane.setBackground(new Color(0, 0, 51));
+contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+setContentPane(contentPane);
+contentPane.setLayout(null);
+
+dmArchivos = new DefaultListModel<String>();
+listArchivosJava = new JList(dmArchivos);
+listArchivosJava.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+listArchivosJava.setBackground(new Color(255, 255, 255));
+listArchivosJava.setForeground(new Color(0, 0, 51));
+scrollPane_2 = new JScrollPane();
+scrollPane_2.setBounds(25, 78, 618, 158);
+scrollPane_2.setViewportView(listArchivosJava);
+contentPane.add(scrollPane_2);
+
+
+dmClases = new DefaultListModel<String>();
+listClases = new JList(dmClases);
+listClases.setForeground(new Color(0, 0, 51));
+listClases.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+listClases.setBackground(Color.WHITE);
+scrollPane = new JScrollPane();
+scrollPane.setBounds(25, 270, 134, 237);
+scrollPane.setViewportView(listClases);
+contentPane.add(scrollPane);
+
+
+dmMetodos = new DefaultListModel<String>();
+listMetodos = new JList(dmMetodos);
+listMetodos.setForeground(new Color(0, 0, 51));
+listMetodos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+listMetodos.setBackground(Color.WHITE);
+scrollPane_1 = new JScrollPane();
+scrollPane_1.setBounds(271, 270, 372, 237);
+scrollPane_1.setViewportView(listMetodos);
+contentPane.add(scrollPane_1);
+
+dmCodigo = new DefaultListModel<String>();
+listCodigo = new JList(dmCodigo);
+scrollPane_3 = new JScrollPane();
+scrollPane_3.setBounds(25, 539, 616, 189);
+scrollPane_3.setViewportView(listCodigo);
+contentPane.add(scrollPane_3);
+listCodigo.setForeground(new Color(0, 0, 51));
+listCodigo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+listCodigo.setBackground(Color.WHITE);
+
+
+JMenuBar menuBar = new JMenuBar();
+menuBar.setFont(new Font("Segoe UI", Font.PLAIN, 32));
+menuBar.setBounds(0, 0, 1200, 31);
+contentPane.add(menuBar);
+
+JMenu mnArchivo = new JMenu("Archivo");
+mnArchivo.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+menuBar.add(mnArchivo);
+
+JMenuItem mntmAbrir = new JMenuItem("Abrir");
+mntmAbrir.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+mnArchivo.add(mntmAbrir);
+
+
+mntmAbrir.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseReleased(MouseEvent arg0) {
+
+contador = new Contador();
+
+JFileChooser fc = new JFileChooser();
+fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+int opcion = fc.showOpenDialog(null);
+
+if(opcion == JFileChooser.APPROVE_OPTION) {
+contador.getArchivosJava().clear();
+contador.buscarArchivosJava(fc.getSelectedFile());
+
+dmArchivos.clear();
+
+for(String archivo : contador.getArchivosJava())
+dmArchivos.addElement(archivo);
+}
+
+}
+});
+
+
+listClases.addListSelectionListener(new ListSelectionListener() {
+
+@Override
+public void valueChanged(ListSelectionEvent arg0) {
+if (!arg0.getValueIsAdjusting() && listClases.getSelectedIndex() != -1) {
+try {
+dmMetodos.clear();
+claseSeleccionada = listClases.getSelectedValue().toString();
+contador.buscarMetodos(archivoSeleccionado, claseSeleccionada);
+for(String metodo : contador.getMetodos())
+dmMetodos.addElement(metodo);
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+});
+
+
+listArchivosJava.addListSelectionListener(new ListSelectionListener() {
+
+@Override
+public void valueChanged(ListSelectionEvent arg0) {
+if (!arg0.getValueIsAdjusting() && listArchivosJava.getSelectedIndex() != -1) {
+try {
+dmClases.clear();
+dmMetodos.clear();
+listClases.setSelectedIndex(-1);
+archivoSeleccionado = listArchivosJava.getSelectedValue().toString();
+contador.buscarClases(archivoSeleccionado);
+for(String clase : contador.getClases())
+dmClases.addElement(clase);
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+}
+});
+
+}
+}

@@ -1,0 +1,404 @@
+package contador;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class Contador {
+
+private String archivoTemporal = "SinComentarios";
+private String finDeLinea = System.getProperty("line.separator");
+
+private ArrayList<String> archivosJava = new ArrayList<String>();
+private ArrayList<String> clases = new ArrayList<String>();
+private ArrayList<String> metodos = new ArrayList<String>();
+private ArrayList<String> archivosSinComentarios = new ArrayList<String>();
+private int cantidadArchivosJava = 0;
+
+private BufferedReader br;
+private BufferedWriter bw;
+
+private int cantidadComentarios = 0;
+private int cantidadClases = 0;
+private int cantidadMetodos = 0;
+
+
+private String regexComentarios = "(.*
+private String regexComentarioMultipleIni = "[^
+private String regexComentarioMultipleFin = ".*\\*/.*";
+private String regexMismaLinea = "
+private String regexMismaLineaMultiple = "/\\*.*";
+private String regexMismaLineaMultipleFin = ".*\\*/(\\s*)?\\S*";
+
+private String acceso = "\\s*(public|private)\\s+";
+private String modificador = "(final|static|final\\sstatic)?\\s+";
+private String parametros = "\\(.*\\).*";
+private String nombreClase  = "";
+private String nombreMetodo = "";
+
+private String regexClase = ".*class\\s+" + nombreClase + ".*";
+private String regexMetodo = acceso + modificador + ".*" + nombreMetodo + parametros;
+
+public static void main(String[] args) throws IOException {
+
+Contador c =  new Contador();
+c.buscarArchivosJava(new File("C:\\Users\\leodr\\eclipse-workspace\\Contador\\src\\contador"));
+
+String path;
+for(String s : c.getArchivosJava()) {
+path = c.getArchivoTemporal() + c.getCantidadArchivosJava() + ".txt";
+c.generarArchivoSinComentarios(s, path);
+c.setCantidadArchivosJava(c.getCantidadArchivosJava() + 1);
+c.getArchivosSinComentarios().add(path);
+}
+
+for(String s : c.getArchivosJava()) {
+c.setNombre("generarArchivoSinComentarios");
+c.buscarComentarios(s, c.getRegexMetodo());
+c.buscarClases(s);
+}
+
+}
+
+public void buscarArchivosJava(File file) {
+File[] java = file.listFiles(new FilenameFilter() {
+public boolean accept(File dir, String name) {
+return name.endsWith("java");
+}
+});
+
+for(File f : java)
+archivosJava.add(f.getPath());
+
+File[] children = file.listFiles();
+for (File child : children) {
+if(child.isDirectory())
+buscarArchivosJava(child);
+}
+}
+
+public void buscarClases(String path) throws IOException {
+clases.clear();
+nombreClase = "";
+br = new BufferedReader(new FileReader(path));
+
+String linea;
+while ((linea = br.readLine()) != null) {
+if(linea.matches(regexClase))
+clases.add(linea.replaceFirst(".*class\\s+", "").split(" ")[0]);
+}
+
+br.close();
+}
+
+public void buscarMetodos(String path, String clase) throws IOException {
+metodos.clear();
+nombreClase = clase;
+br = new BufferedReader(new FileReader(path));
+
+String linea;
+while ((linea = br.readLine()) != null && !linea.matches(regexClase)) { }
+
+while ((linea = br.readLine()) != null) {
+if(linea.matches(regexMetodo))
+metodos.add(linea.replaceFirst(acceso + modificador + "\\w+\\s+", "").split("\\(")[0]);
+}
+
+br.close();
+}
+
+public void buscarCodigo(String path, String metodo) {
+
+}
+
+public void generarArchivoSinComentarios(String entrada, String salida) throws IOException {
+
+br = new BufferedReader(new FileReader(entrada));
+bw = new BufferedWriter(new FileWriter(salida));
+
+String linea;
+String lineaModificada;
+
+while ((linea = br.readLine()) != null) {
+linea = linea.trim();
+
+if (linea.matches(regexComentarios)) { 
+
+if(!linea.matches(regexMismaLinea) && !linea.matches(regexMismaLineaMultiple)) { 
+lineaModificada = linea.replaceFirst(regexMismaLinea + "|" + regexMismaLineaMultiple, ""); 
+bw.write(lineaModificada + finDeLinea);
+}
+
+if (linea.matches(regexComentarioMultipleIni) && !linea.replaceFirst("/\\*", "").matches(regexComentarioMultipleFin)) { 
+while ((linea = br.readLine()) != null && !linea.matches(regexComentarioMultipleFin)) {}
+
+if(linea.matches(regexMismaLineaMultipleFin)) { 
+lineaModificada = linea.replaceFirst(".*\\*/\\s*", ""); 
+bw.write(lineaModificada + finDeLinea);
+}
+}
+}
+
+else
+bw.write(linea + finDeLinea);
+}
+
+br.close();
+bw.close();
+}
+
+public void buscarComentarios(String path, String metodo) throws IOException {
+
+br = new BufferedReader(new FileReader(path));
+
+String linea;
+
+while ((linea = br.readLine()) != null && !linea.matches(metodo)) {}
+
+while ((linea = br.readLine()) != null) {
+linea = linea.trim();
+
+if (linea.matches(regexComentarios)) { 
+cantidadComentarios++;
+
+if (linea.matches(regexComentarioMultipleIni) && !linea.replaceFirst("/\\*", "").matches(regexComentarioMultipleFin)) { 
+while ((linea = br.readLine()) != null && !linea.matches(regexComentarioMultipleFin))
+cantidadComentarios++;
+
+if(linea.matches(regexMismaLineaMultipleFin))  
+if(linea.replaceFirst(".*\\*/\\s*", "").matches(".*;")) 
+break;
+
+cantidadComentarios++;
+}
+}
+}
+
+br.close();
+}
+
+public void sinComentarios() throws IOException {
+br = new BufferedReader(new FileReader(archivoTemporal));
+
+String linea;
+while((linea = br.readLine()) != null) {
+
+if(linea.matches(regexClase))
+cantidadClases++;
+
+if(linea.matches(regexMetodo))
+cantidadMetodos++;
+}
+
+br.close();
+}
+
+
+
+
+
+
+
+
+
+
+
+public String getArchivoTemporal() {
+return archivoTemporal;
+}
+
+public void setArchivoTemporal(String archivoTemporal) {
+this.archivoTemporal = archivoTemporal;
+}
+
+public String getFinDeLinea() {
+return finDeLinea;
+}
+
+public void setFinDeLinea(String finDeLinea) {
+this.finDeLinea = finDeLinea;
+}
+
+public ArrayList<String> getArchivosJava() {
+return archivosJava;
+}
+
+public void setArchivosJava(ArrayList<String> archivosJava) {
+this.archivosJava = archivosJava;
+}
+
+public ArrayList<String> getClases() {
+return clases;
+}
+
+public void setClases(ArrayList<String> clases) {
+this.clases = clases;
+}
+
+public ArrayList<String> getMetodos() {
+return metodos;
+}
+
+public void setMetodos(ArrayList<String> metodos) {
+this.metodos = metodos;
+}
+
+public ArrayList<String> getArchivosSinComentarios() {
+return archivosSinComentarios;
+}
+
+public void setArchivosSinComentarios(ArrayList<String> archivosSinComentarios) {
+this.archivosSinComentarios = archivosSinComentarios;
+}
+
+public int getCantidadArchivosJava() {
+return cantidadArchivosJava;
+}
+
+public void setCantidadArchivosJava(int cantidadArchivosJava) {
+this.cantidadArchivosJava = cantidadArchivosJava;
+}
+
+public BufferedReader getBr() {
+return br;
+}
+
+public void setBr(BufferedReader br) {
+this.br = br;
+}
+
+public BufferedWriter getBw() {
+return bw;
+}
+
+public void setBw(BufferedWriter bw) {
+this.bw = bw;
+}
+
+public int getCantidadComentarios() {
+return cantidadComentarios;
+}
+
+public void setCantidadComentarios(int cantidadComentarios) {
+this.cantidadComentarios = cantidadComentarios;
+}
+
+public int getCantidadClases() {
+return cantidadClases;
+}
+
+public void setCantidadClases(int cantidadClases) {
+this.cantidadClases = cantidadClases;
+}
+
+public int getCantidadMetodos() {
+return cantidadMetodos;
+}
+
+public void setCantidadMetodos(int cantidadMetodos) {
+this.cantidadMetodos = cantidadMetodos;
+}
+
+public String getRegexComentarios() {
+return regexComentarios;
+}
+
+public void setRegexComentarios(String regexComentarios) {
+this.regexComentarios = regexComentarios;
+}
+
+public String getRegexComentarioMultipleIni() {
+return regexComentarioMultipleIni;
+}
+
+public void setRegexComentarioMultipleIni(String regexComentarioMultipleIni) {
+this.regexComentarioMultipleIni = regexComentarioMultipleIni;
+}
+
+public String getRegexComentarioMultipleFin() {
+return regexComentarioMultipleFin;
+}
+
+public void setRegexComentarioMultipleFin(String regexComentarioMultipleFin) {
+this.regexComentarioMultipleFin = regexComentarioMultipleFin;
+}
+
+public String getRegexMismaLinea() {
+return regexMismaLinea;
+}
+
+public void setRegexMismaLinea(String regexMismaLinea) {
+this.regexMismaLinea = regexMismaLinea;
+}
+
+public String getRegexMismaLineaMultiple() {
+return regexMismaLineaMultiple;
+}
+
+public void setRegexMismaLineaMultiple(String regexMismaLineaMultiple) {
+this.regexMismaLineaMultiple = regexMismaLineaMultiple;
+}
+
+public String getRegexMismaLineaMultipleFin() {
+return regexMismaLineaMultipleFin;
+}
+
+public void setRegexMismaLineaMultipleFin(String regexMismaLineaMultipleFin) {
+this.regexMismaLineaMultipleFin = regexMismaLineaMultipleFin;
+}
+
+public String getAcceso() {
+return acceso;
+}
+
+public void setAcceso(String acceso) {
+this.acceso = acceso;
+}
+
+public String getModificador() {
+return modificador;
+}
+
+public void setModificador(String modificador) {
+this.modificador = modificador;
+}
+
+public String getParametros() {
+return parametros;
+}
+
+public void setParametros(String parametros) {
+this.parametros = parametros;
+}
+
+public String getNombre() {
+return nombreClase;
+}
+
+public void setNombre(String nombre) {
+this.nombreClase = nombre;
+}
+
+public String getRegexClase() {
+return regexClase;
+}
+
+public void setRegexClase(String regexClase) {
+this.regexClase = regexClase;
+}
+
+public String getRegexMetodo() {
+return regexMetodo;
+}
+
+public void setRegexMetodo(String regexMetodo) {
+this.regexMetodo = regexMetodo;
+}
+
+}
