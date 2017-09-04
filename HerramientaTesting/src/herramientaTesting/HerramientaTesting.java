@@ -101,7 +101,7 @@ public class HerramientaTesting {
 		cantidadComentarios = 0;
 		
 		br = new BufferedReader(new FileReader(path));
-		
+		int contadorDeLlaves = 0;
 		String linea;
 		String rxClase = regexClase.replace("nombreClase", clase);
 		String rxMetodo = regexMetodo.replace("nombreMetodo", metodo);
@@ -109,11 +109,17 @@ public class HerramientaTesting {
 				while ((linea = br.readLine()) != null && !linea.matches(rxMetodo)) { }
 					linea = linea.trim();
 					codigo = codigo + linea + finDeLinea ;
+					contadorDeLlaves++;
 					
-						while ((linea = br.readLine()) != null && !linea.matches("\\s*\\}")) {
+						while ((linea = br.readLine()) != null && contadorDeLlaves != 0) {
 							codigo = codigo + linea.trim() + finDeLinea;
 							cantidadLineasCodigo++;
-							
+							if(linea.contains("{")) {
+								contadorDeLlaves++;
+							}
+							if (linea.matches("\\s*\\}")) {
+								contadorDeLlaves--;
+							}
 							if (linea.matches(regexComentarios)) { // Hay un comentario
 								cantidadComentarios++;
 															
@@ -130,8 +136,9 @@ public class HerramientaTesting {
 								}
 							}
 						}
-
-						codigo = codigo + linea.trim() + finDeLinea;
+						if(linea != null) {
+							codigo = codigo + linea.trim() + finDeLinea;
+						}
 
 		br.close();
 	}
@@ -149,7 +156,7 @@ public class HerramientaTesting {
 					
 				if (linea.matches(regexComentarios)) { // Hay un comentario
 						
-					if(!linea.matches(regexMismaLinea) && !linea.matches(regexMismaLineaMultiple)) { // La linea no es sólo un comentario (hay alguna instruccion)
+					if(!linea.matches(regexMismaLinea) && !linea.matches(regexMismaLineaMultiple)) { // La linea no es sï¿½lo un comentario (hay alguna instruccion)
 						lineaModificada = linea.replaceFirst(regexMismaLinea + "|" + regexMismaLineaMultiple, ""); // Elimino el contenido del comentario
 						bw.write(lineaModificada + finDeLinea);
 					}
@@ -157,7 +164,7 @@ public class HerramientaTesting {
 					if (linea.matches(regexComentarioMultipleIni) && !linea.replaceFirst("/\\*", "").matches(regexComentarioMultipleFin)) { // Comienza el conteo de comentarios multiples (/*)
 						while ((linea = br.readLine()) != null && !linea.matches(regexComentarioMultipleFin)) {}
 
-						if(linea.matches(regexMismaLineaMultipleFin)) { // La linea no es sólo un comentario (hay alguna instruccion)
+						if(linea.matches(regexMismaLineaMultipleFin)) { // La linea no es sï¿½lo un comentario (hay alguna instruccion)
 							lineaModificada = linea.replaceFirst(".*\\*/\\s*", ""); // Elimino el contenido del comentario
 							bw.write(lineaModificada + finDeLinea);
 						}
@@ -190,7 +197,7 @@ public class HerramientaTesting {
 						while ((linea = br.readLine()) != null && !linea.matches(regexComentarioMultipleFin))
 							cantidadComentarios++;
 									
-						if(linea.matches(regexMismaLineaMultipleFin))  // La linea no es sólo un comentario (hay alguna instruccion)
+						if(linea.matches(regexMismaLineaMultipleFin))  // La linea no es sï¿½lo un comentario (hay alguna instruccion)
 							if(linea.replaceFirst(".*\\*/\\s*", "").matches(".*;")) // Fin de la clase
 								break; 
 							
