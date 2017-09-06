@@ -1,36 +1,31 @@
 package herramientaTesting;
 
-import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JMenu;
+import java.awt.Font;
+import java.awt.TextArea;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import javax.swing.JList;
-import java.awt.Color;
-import java.awt.Font;
-import javax.swing.ListModel;
-import javax.swing.JScrollBar;
-import javax.swing.AbstractListModel;
-import javax.swing.JScrollPane;
-import java.awt.TextArea;
+import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class Interfaz extends JFrame {
 
@@ -382,6 +377,7 @@ public class Interfaz extends JFrame {
                 		metodoSeleccionado = listMetodos.getSelectedValue().toString();
 						contador.buscarCodigo(archivoSeleccionado, claseSeleccionada, metodoSeleccionado);
 						textCodigo.setText(contador.getCodigo());
+						labelFanIn.setText(contador.getFanIn());
 						labelLineasCodigo.setText(String.valueOf(contador.getCantidadLineasCodigo()));
 						labelLineasComentadas.setText(String.valueOf(contador.getCantidadComentarios()));
 						labelPorcLineasComentadas.setText(String.valueOf(Interfaz.round((double)(contador.getCantidadComentarios()*100)/contador.getCantidadLineasCodigo(), 2)));

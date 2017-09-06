@@ -3,7 +3,6 @@ package herramientaTesting;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -88,10 +87,13 @@ public class HerramientaTesting {
 		while ((linea = br.readLine()) != null && !linea.matches(rxClase)) { }
 		
 			while ((linea = br.readLine()) != null) {	
-				if(linea.matches(rxMetodo)) 
+				if(linea.matches(rxMetodo)){
+					if(!linea.split("\\(")[0].replaceFirst("\\s*(public|private)\\s+(final|static|final\\sstatic)?\\s*(.*\\<.*\\>\\s+|[a-zA-Z]+)", "").trim().equals("") && !metodos.contains(linea.split("\\(")[0].replaceFirst("\\s*(public|private)\\s+(final|static|final\\sstatic)?\\s*(.*\\<.*\\>\\s+|[a-zA-Z]+)", "").trim())){
 						metodos.add(linea.split("\\(")[0].replaceFirst("\\s*(public|private)\\s+(final|static|final\\sstatic)?\\s*(.*\\<.*\\>\\s+|[a-zA-Z]+)", "").trim());
+					}
 				}
-		
+			}
+
 		br.close();
 	}
 	
@@ -105,19 +107,26 @@ public class HerramientaTesting {
 		String linea;
 		String rxClase = regexClase.replace("nombreClase", clase);
 		String rxMetodo = regexMetodo.replace("nombreMetodo", metodo);
+		boolean firstTime = true;
 		while ((linea = br.readLine()) != null && !linea.matches(rxClase)) { }
 				while ((linea = br.readLine()) != null && !linea.matches(rxMetodo)) { }
 					linea = linea.trim();
-					codigo = codigo + linea + finDeLinea ;
-					contadorDeLlaves++;
-					
-						while ((linea = br.readLine()) != null && contadorDeLlaves != 0) {
+					codigo = codigo + linea + finDeLinea;
+					if(linea.contains("{")) {
+						contadorDeLlaves++;
+					}
+					if (linea.matches("\\s*\\}")) {
+						contadorDeLlaves--;
+					}
+						
+						while ((linea = br.readLine()) != null && contadorDeLlaves != 0 || firstTime ) {
+							firstTime = false;
 							codigo = codigo + linea.trim() + finDeLinea;
 							cantidadLineasCodigo++;
 							if(linea.contains("{")) {
 								contadorDeLlaves++;
 							}
-							if (linea.matches("\\s*\\}")) {
+							if (linea.contains("}")) {
 								contadorDeLlaves--;
 							}
 							if (linea.matches(regexComentarios)) { // Hay un comentario
@@ -430,5 +439,15 @@ public class HerramientaTesting {
 
 	public void setRegexMetodo(String regexMetodo) {
 		this.regexMetodo = regexMetodo;
+	}
+
+	public String getFanIn() {
+	int cantidad = 0;
+		for (String metodo : metodos) {
+			if(metodo.length() != 0) {
+				cantidad += Math.ceil((codigo.length() - codigo.replaceAll(metodo, "").length())/metodo.length());
+			}
+		}
+		return String.valueOf(cantidad);
 	}
 }
