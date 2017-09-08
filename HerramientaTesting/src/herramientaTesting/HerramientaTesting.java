@@ -43,7 +43,6 @@ public class HerramientaTesting {
 	private String parametros = "\\(.*\\)\\s*(throws\\s+[a-zA-Z]+)?\\s*\\{.*";
 	
 	private String regexClase = ".*class\\s+nombreClase.*";
-	//private String regexMetodo = acceso + modificador + "nombreMetodo\\s*" + parametros;
 	private String regexMetodo = "\\s*(public|private)\\s+(final|static|final\\sstatic)?.*nombreMetodo\\s*\\(.*\\).*\\{.*";
 	
 	public void buscarArchivosJava(File file) {
@@ -82,17 +81,19 @@ public class HerramientaTesting {
 		br = new BufferedReader(new FileReader(path));
 		
 		String linea;
+		String nombreClase;
 		String rxClase = regexClase.replace("nombreClase", clase);
 		String rxMetodo = regexMetodo.replace("nombreMetodo", "[a-zA-Z]+");
-		while ((linea = br.readLine()) != null && !linea.matches(rxClase)) { }
 		
-			while ((linea = br.readLine()) != null) {	
-				if(linea.matches(rxMetodo)){
-					if(!linea.split("\\(")[0].replaceFirst("\\s*(public|private)\\s+(final|static|final\\sstatic)?\\s*(.*\\<.*\\>\\s+|[a-zA-Z]+)", "").trim().equals("") && !metodos.contains(linea.split("\\(")[0].replaceFirst("\\s*(public|private)\\s+(final|static|final\\sstatic)?\\s*(.*\\<.*\\>\\s+|[a-zA-Z]+)", "").trim())){
-						metodos.add(linea.split("\\(")[0].replaceFirst("\\s*(public|private)\\s+(final|static|final\\sstatic)?\\s*(.*\\<.*\\>\\s+|[a-zA-Z]+)", "").trim());
-					}
+		while ((linea = br.readLine()) != null && !linea.matches(rxClase)) { }
+		while ((linea = br.readLine()) != null) {	
+			if(linea.matches(rxMetodo)){
+				nombreClase = getNombreMetodo(linea);
+				if(!nombreClase.equals("") && !metodos.contains(nombreClase)){
+					metodos.add(nombreClase);
 				}
 			}
+		}
 
 		br.close();
 	}
@@ -150,6 +151,16 @@ public class HerramientaTesting {
 						}
 
 		br.close();
+	}
+	
+	public String getFanIn() {
+	int cantidad = 0;
+		for (String metodo : metodos) {
+			if(metodo.length() != 0) {
+				cantidad += Math.ceil((codigo.length() - codigo.replaceAll(metodo, "").length())/metodo.length());
+			}
+		}
+		return String.valueOf(cantidad);
 	}
 
 	public void generarArchivoSinComentarios(String entrada, String salida) throws IOException {
@@ -232,6 +243,12 @@ public class HerramientaTesting {
 			}
 		 
 		 br.close();
+	}
+	
+	public String getNombreMetodo(String metodo) {
+		metodo = new StringBuilder(metodo).reverse().toString();
+		metodo = (metodo.split("\\(")[1].trim()).split(" ")[0];
+		return new StringBuilder(metodo).reverse().toString();
 	}
 
 	
@@ -439,15 +456,5 @@ public class HerramientaTesting {
 
 	public void setRegexMetodo(String regexMetodo) {
 		this.regexMetodo = regexMetodo;
-	}
-
-	public String getFanIn() {
-	int cantidad = 0;
-		for (String metodo : metodos) {
-			if(metodo.length() != 0) {
-				cantidad += Math.ceil((codigo.length() - codigo.replaceAll(metodo, "").length())/metodo.length());
-			}
-		}
-		return String.valueOf(cantidad);
 	}
 }
