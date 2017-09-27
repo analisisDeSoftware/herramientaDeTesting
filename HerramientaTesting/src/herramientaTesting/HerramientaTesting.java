@@ -8,6 +8,10 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public class HerramientaTesting {
 	
@@ -28,6 +32,15 @@ public class HerramientaTesting {
 	private int cantidadComentarios = 0;
 	private int cantidadClases = 0;
 	private int cantidadMetodos = 0;
+	private int complejidadCiclomatica = 0;
+	private int nodosPredicado = 0;
+	private int cantOperadores = 0;
+	private int cantOperandos = 0;
+	private int longitud = 0;
+	private int volumen = 0;
+	
+	private HashSet<String> operadores = new LinkedHashSet<String>();
+	private HashSet<String> operandos  = new LinkedHashSet<String>();
 	
 	// Expresiones regulares 
 	
@@ -44,6 +57,24 @@ public class HerramientaTesting {
 	
 	private String regexClase = ".*class\\s+nombreClase.*";
 	private String regexMetodo = "\\s*(public|private)\\s+(final|static|final\\sstatic)?.*nombreMetodo\\s*\\(.*\\).*\\{.*";
+	
+	
+	private String regexNodosPredicado = "for.*|if.*|switch.*|while.*";
+	
+	private String palabrasReservadas = "(abstract|assert|boolean|break|byte|case|catch|char|char\\[.*\\]|class|const|continue|default|do|double|else|enum|"
+			+ "|extends|false|final|finally|float|float\\[.*\\]|goto|implements|import|instanceof|int|int\\[.*\\]|interface|long|long\\[.*\\]|native|new|package|private|protected|public|"
+			+ "|return|short|short\\[.*\\]|static|strictfp|String|super|synchronized|this|throw|throws|transient|true|try|void|volatile)" + ";?";
+	
+	private String operadoresAritmeticos = "|\\+|-|\\*|/";
+	
+	private String operadoresLogicos = "|&&|\\|\\||>|<|>=|<=|==|\\!=";
+	
+	private String regexOperadores = palabrasReservadas + operadoresAritmeticos + operadoresLogicos + "|=";
+	
+	private String regexID = "[a-zA-Z](\\w|_)*(;|\\[.*\\]|,|\\.)?";
+	
+	private String regexOperandos = regexID;
+
 	
 	public void buscarArchivosJava(File file) {
 		File[] java = file.listFiles(new FilenameFilter() {
@@ -105,31 +136,34 @@ public class HerramientaTesting {
 		
 		br = new BufferedReader(new FileReader(path));
 		int contadorDeLlaves = 0;
+		boolean firstTime = true;
 		String linea;
 		String rxClase = regexClase.replace("nombreClase", clase);
 		String rxMetodo = regexMetodo.replace("nombreMetodo", metodo);
-		boolean firstTime = true;
+
 		while ((linea = br.readLine()) != null && !linea.matches(rxClase)) { }
 				while ((linea = br.readLine()) != null && !linea.matches(rxMetodo)) { }
 					linea = linea.trim();
 					codigo = codigo + linea + finDeLinea;
-					if(linea.contains("{")) {
+					
+					if(linea.contains("{")) 
 						contadorDeLlaves++;
-					}
-					if (linea.matches("\\s*\\}")) {
+					
+					if (linea.matches("\\s*\\}")) 
 						contadorDeLlaves--;
-					}
+					
 						
 						while ((linea = br.readLine()) != null && contadorDeLlaves != 0 || firstTime ) {
 							firstTime = false;
 							codigo = codigo + linea.trim() + finDeLinea;
-							cantidadLineasCodigo++;
-							if(linea.contains("{")) {
+								cantidadLineasCodigo++;
+							
+							if(linea.contains("{")) 
 								contadorDeLlaves++;
-							}
-							if (linea.contains("}")) {
+							
+							if (linea.contains("}")) 
 								contadorDeLlaves--;
-							}
+							
 							if (linea.matches(regexComentarios)) { // Hay un comentario
 								cantidadComentarios++;
 															
@@ -149,8 +183,140 @@ public class HerramientaTesting {
 						if(linea != null) {
 							codigo = codigo + linea.trim() + finDeLinea;
 						}
-
+				
+		cantidadLineasCodigo--;
 		br.close();
+	}
+	
+	public List<Float> getComplejidadYHalstead(String path, String clase, String metodo) throws IOException {
+		
+		nodosPredicado = 0;
+		operadores.clear();
+		operandos.clear();
+		cantOperadores = 0;
+		cantOperandos = 0;
+		
+		br = new BufferedReader(new FileReader(path));
+		int contadorDeLlaves = 0;
+		String linea;
+		String rxClase = regexClase.replace("nombreClase", clase);
+		String rxMetodo = regexMetodo.replace("nombreMetodo", metodo);
+		boolean firstTime = true;
+		
+		while ((linea = br.readLine()) != null && !linea.matches(rxClase)) { }
+			while ((linea = br.readLine()) != null && !linea.matches(rxMetodo)) { }
+					
+				if(linea.contains("{")) 
+					contadorDeLlaves++;
+					
+				if (linea.matches("\\s*\\}")) 
+					contadorDeLlaves--;
+				
+					while ((linea = br.readLine()) != null && contadorDeLlaves != 0 || firstTime ) {
+						firstTime = false;
+						linea = linea.replaceAll("\t", "");
+						linea = linea.trim();
+						
+						if(linea.contains("{")) 
+							contadorDeLlaves++;
+						
+						if (linea.contains("}")) 
+							contadorDeLlaves--;
+		
+						if (linea.matches(regexComentarios)) { // Hay un comentario
+							
+							if(!linea.matches(regexMismaLinea) && !linea.matches(regexMismaLineaMultiple)) { // La linea no es s�lo un comentario (hay alguna instruccion)
+								linea = linea.replaceFirst(regexMismaLinea + "|" + regexMismaLineaMultiple, ""); // Elimino el contenido del comentario
+								getOperandosYOperadores(linea);
+							}
+								
+							if (linea.matches(regexComentarioMultipleIni) && !linea.replaceFirst("/\\*", "").matches(regexComentarioMultipleFin)) { 
+								while ((linea = br.readLine()) != null && !linea.matches(regexComentarioMultipleFin)) {
+									linea = linea.replaceFirst(".*\\*/\\s*", ""); // Elimino el contenido del comentario
+									getOperandosYOperadores(linea);
+								}
+							}
+							
+						} else {
+							getOperandosYOperadores(linea);
+						}
+					}
+
+					br.close();
+					
+		float complejidad = nodosPredicado + 1;
+		float longitud = cantOperadores + cantOperandos;
+		int n = operadores.size() + operandos.size();
+		float volumen = longitud * (float)(Math.log(n)/Math.log(2));
+		
+		return new ArrayList<Float>(Arrays.asList(complejidad, longitud, volumen));
+	}
+	
+	private void getOperandosYOperadores(String linea) {
+		System.out.println(linea);
+		String token;
+		ArrayList<String> tokens;
+		int operadoresLogicos;
+		if(linea.matches(regexNodosPredicado)) {
+			operadoresLogicos = 1;
+			if(linea.contains("{")) { operadores.add("{"); operadores.add("}"); cantOperadores++; }
+			
+			token = linea.replaceAll("!(for\\(.*\\)|if\\(.*\\)|switch\\(.*\\)|while\\(.*\\))", "");
+			
+			tokens = new ArrayList<String>(Arrays.asList(linea.split(" ")));
+			
+			for(String t : tokens) 
+				if(t.matches("&&|\\|\\|"))
+					operadoresLogicos++;
+			
+			nodosPredicado += operadoresLogicos;
+			
+			token = token.replaceAll("\\(.*", "");
+			token = token.trim();
+			operadores.add(token);
+			cantOperadores++;
+		}
+		else {
+			linea = linea.replaceAll("\\(.*\\)", "\\(\\)");
+			tokens = new ArrayList<String>(Arrays.asList(linea.split(" ")));
+			for(String t : tokens) {
+				
+				if(t.matches(regexOperadores)) {
+					t = t.replaceAll("\\[.*\\]", "");
+					t = t.replace(";", "");
+					t = t.replace(".", "");
+					t = t.trim();
+					operadores.add(t);
+					cantOperadores++;
+			
+				} else {
+					
+					if(t.matches(regexOperandos) && !t.equals("null")) {
+						t = t.replaceAll("\\[.*\\]", "");
+						t = t.replace(";", "");
+						t = t.replace(",", "");
+						t = t.trim();
+						operandos.add(t);
+						cantOperandos++;
+					}
+					
+					if(t.contains("[")) { operadores.add("["); operadores.add("]"); cantOperadores++; }
+					if(t.contains("(")) { operadores.add("("); operadores.add(")"); cantOperadores++; }
+					if(t.contains("{")) { operadores.add("{"); operadores.add("}"); cantOperadores++; }
+					if(t.contains("++")) { operadores.add("++"); cantOperadores++; }
+					if(t.contains("--")) { operadores.add("--"); cantOperadores++; }
+					
+				} 
+			}
+		}
+	}
+	
+	public HashSet<String> getOperandos() {
+		return operandos;
+	}
+	
+	public HashSet<String> getOperadores() {
+		return operadores;
 	}
 	
 	public String getFanIn() {
@@ -202,13 +368,31 @@ public class HerramientaTesting {
 	public void buscarComentarios(String path, String metodo) throws IOException {
 	
 		br = new BufferedReader(new FileReader(path));
-	
+		int contadorDeLlaves = 0;
+		boolean firstTime = true;
 		String linea;
+		
 		
 		while ((linea = br.readLine()) != null && !linea.matches(metodo)) {}
 		
-			while ((linea = br.readLine()) != null) {
-			linea = linea.trim();
+			if(linea.contains("{")) 
+				contadorDeLlaves++;
+	
+			if (linea.matches("\\s*\\}")) 
+				contadorDeLlaves--;
+			
+			while ((linea = br.readLine()) != null && contadorDeLlaves != 0 || firstTime ) {
+				firstTime = false;
+				codigo = codigo + linea.trim() + finDeLinea;
+				cantidadLineasCodigo++;
+				
+				if(linea.contains("{")) 
+					contadorDeLlaves++;
+	
+				if (linea.contains("}")) 
+					contadorDeLlaves--;
+	
+				linea = linea.trim();
 					
 				if (linea.matches(regexComentarios)) { // Hay un comentario
 					cantidadComentarios++;
