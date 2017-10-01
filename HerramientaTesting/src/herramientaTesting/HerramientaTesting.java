@@ -3,6 +3,7 @@ package herramientaTesting;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -12,6 +13,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Scanner;
+
+import javax.swing.ListModel;
 
 public class HerramientaTesting {
 	
@@ -32,12 +36,9 @@ public class HerramientaTesting {
 	private int cantidadComentarios = 0;
 	private int cantidadClases = 0;
 	private int cantidadMetodos = 0;
-	private int complejidadCiclomatica = 0;
 	private int nodosPredicado = 0;
 	private int cantOperadores = 0;
 	private int cantOperandos = 0;
-	private int longitud = 0;
-	private int volumen = 0;
 	
 	private HashSet<String> operadores = new LinkedHashSet<String>();
 	private HashSet<String> operandos  = new LinkedHashSet<String>();
@@ -641,5 +642,36 @@ public class HerramientaTesting {
 
 	public void setRegexMetodo(String regexMetodo) {
 		this.regexMetodo = regexMetodo;
+	}
+
+	public String getFanOut(ListModel<String> listModel, String metodoSeleccionado) {
+		ArrayList<String> archivosJava = new ArrayList<String>();
+		for (int i = 0; i < listModel.getSize(); i++) {
+			archivosJava.add(listModel.getElementAt(i));
+		}
+		Scanner sc;
+		String code = "";
+		int contador = 0;
+		for (String arch : archivosJava) {
+			try {
+				sc = new Scanner(new File(arch));
+				while(sc.hasNextLine()) {
+					code += sc.nextLine();
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		while(code.indexOf(metodoSeleccionado) != -1) {
+			if(! (code.charAt(code.indexOf(metodoSeleccionado)+metodoSeleccionado.length()) == ' ')) {
+				contador++;
+			}
+			code = code.replaceFirst(metodoSeleccionado, "");
+
+		}
+		
+		return String.valueOf(contador);
+		
 	}
 }

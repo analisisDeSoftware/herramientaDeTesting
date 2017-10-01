@@ -21,17 +21,20 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.AbstractListModel;
-import javax.swing.ListModel;
-import javax.swing.JTextArea;
 
 public class Interfaz extends JFrame {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
 
@@ -44,9 +47,9 @@ public class Interfaz extends JFrame {
 	private DefaultListModel<String> dmClases;
 	private DefaultListModel<String> dmMetodos;
 	
-	private JList listArchivosJava;
-	private JList listClases;
-	private JList listMetodos;
+	private JList<String> listArchivosJava;
+	private JList<String> listClases;
+	private JList<String> listMetodos;
 	private JTextArea textOperadores;
 	private JTextArea textOperandos;
 	private TextArea textCodigo;
@@ -107,7 +110,7 @@ public class Interfaz extends JFrame {
 		contentPane.setLayout(null);
 		
 		dmArchivos = new DefaultListModel<String>();
-		listArchivosJava = new JList(dmArchivos);
+		listArchivosJava = new JList<String>(dmArchivos);
 		listArchivosJava.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		listArchivosJava.setBackground(new Color(255, 255, 255));
 		listArchivosJava.setForeground(new Color(0, 0, 51));
@@ -118,7 +121,7 @@ public class Interfaz extends JFrame {
 		
 		
 		dmClases = new DefaultListModel<String>();
-		listClases = new JList(dmClases);
+		listClases = new JList<String>(dmClases);
 		listClases.setForeground(new Color(0, 0, 51));
 		listClases.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		listClases.setBackground(Color.WHITE);
@@ -129,7 +132,7 @@ public class Interfaz extends JFrame {
 		
 
 		dmMetodos = new DefaultListModel<String>();
-		listMetodos = new JList(dmMetodos);
+		listMetodos = new JList<String>(dmMetodos);
 		listMetodos.setForeground(new Color(0, 0, 51));
 		listMetodos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		listMetodos.setBackground(Color.WHITE);
@@ -415,6 +418,7 @@ public class Interfaz extends JFrame {
 						ArrayList<Float> halstead = (ArrayList<Float>) contador.getComplejidadYHalstead(archivoSeleccionado, claseSeleccionada, metodoSeleccionado);
 						textCodigo.setText(contador.getCodigo());
 						labelFanIn.setText(contador.getFanIn());
+						labelFanOut.setText(contador.getFanOut(listArchivosJava.getModel(), metodoSeleccionado));
 						labelLineasCodigo.setText(String.valueOf(contador.getCantidadLineasCodigo()));
 						labelLineasComentadas.setText(String.valueOf(contador.getCantidadComentarios()));
 						labelPorcLineasComentadas.setText(String.valueOf(Interfaz.round((double)(contador.getCantidadComentarios()*100)/contador.getCantidadLineasCodigo(), 2)));
