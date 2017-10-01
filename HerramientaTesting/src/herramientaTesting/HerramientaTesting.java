@@ -253,7 +253,6 @@ public class HerramientaTesting {
 	}
 	
 	private void getOperandosYOperadores(String linea) {
-		System.out.println(linea);
 		String token;
 		ArrayList<String> tokens;
 		int operadoresLogicos;
@@ -322,9 +321,11 @@ public class HerramientaTesting {
 	public String getFanIn() {
 	int cantidad = 0;
 		for (String metodo : metodos) {
-			if(metodo.length() != 0) {
+				if(codigo.indexOf(metodo) != -1 && codigo.charAt(codigo.indexOf(metodo)+metodo.length()) == ' ') {
+					codigo = codigo.replaceFirst(metodo, "");
+				}
 				cantidad += Math.ceil((codigo.length() - codigo.replaceAll(metodo, "").length())/metodo.length());
-			}
+				
 		}
 		return String.valueOf(cantidad);
 	}
