@@ -28,6 +28,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.JSeparator;
 
 public class Interfaz extends JFrame {
 
@@ -146,7 +147,7 @@ public class Interfaz extends JFrame {
 		textOperandos.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		textOperandos.setBackground(Color.WHITE);
 		scrollPane_3 = new JScrollPane();
-		scrollPane_3.setBounds(807, 594, 556, 55);
+		scrollPane_3.setBounds(807, 574, 556, 55);
 		scrollPane_3.setViewportView(textOperandos);
 		contentPane.add(scrollPane_3);
 		
@@ -155,7 +156,7 @@ public class Interfaz extends JFrame {
 		textOperadores.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		textOperadores.setBackground(Color.WHITE);
 		scrollPane_4 = new JScrollPane();
-		scrollPane_4.setBounds(807, 675, 556, 55);
+		scrollPane_4.setBounds(807, 655, 556, 55);
 		scrollPane_4.setViewportView(textOperadores);
 		contentPane.add(scrollPane_4);
 		
@@ -220,7 +221,7 @@ public class Interfaz extends JFrame {
 		lblLneasDeCdigo_1 = new JLabel("L\u00EDneas de c\u00F3digo comentadas:");
 		lblLneasDeCdigo_1.setForeground(Color.WHITE);
 		lblLneasDeCdigo_1.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		lblLneasDeCdigo_1.setBounds(671, 165, 229, 31);
+		lblLneasDeCdigo_1.setBounds(1053, 105, 229, 31);
 		contentPane.add(lblLneasDeCdigo_1);
 		
 		lblLneasDe = new JLabel("% L\u00EDneas de c\u00F3digo comentadas:");
@@ -232,7 +233,7 @@ public class Interfaz extends JFrame {
 		lblComplejidadCiclomtica = new JLabel("Complejidad Ciclom\u00E1tica:");
 		lblComplejidadCiclomtica.setForeground(Color.WHITE);
 		lblComplejidadCiclomtica.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		lblComplejidadCiclomtica.setBounds(674, 285, 178, 31);
+		lblComplejidadCiclomtica.setBounds(1053, 225, 178, 31);
 		contentPane.add(lblComplejidadCiclomtica);
 		
 		lblFanIn = new JLabel("Fan In:");
@@ -244,13 +245,13 @@ public class Interfaz extends JFrame {
 		lblFanOut = new JLabel("Fan Out:");
 		lblFanOut.setForeground(Color.WHITE);
 		lblFanOut.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		lblFanOut.setBounds(674, 405, 69, 31);
+		lblFanOut.setBounds(1053, 345, 69, 31);
 		contentPane.add(lblFanOut);
 		
 		lblHalsteadVolumen = new JLabel("Halstead volumen:");
 		lblHalsteadVolumen.setForeground(Color.WHITE);
 		lblHalsteadVolumen.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		lblHalsteadVolumen.setBounds(673, 525, 140, 31);
+		lblHalsteadVolumen.setBounds(1053, 465, 140, 31);
 		contentPane.add(lblHalsteadVolumen);
 		
 		lblHalsteadLongitud = new JLabel("Halstead longitud:");
@@ -263,68 +264,68 @@ public class Interfaz extends JFrame {
 		labelLineasCodigo.setHorizontalAlignment(SwingConstants.CENTER);
 		labelLineasCodigo.setForeground(new Color(0, 204, 153));
 		labelLineasCodigo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelLineasCodigo.setBounds(864, 110, 102, 20);
+		labelLineasCodigo.setBounds(857, 110, 60, 20);
 		contentPane.add(labelLineasCodigo);
 		
 		labelLineasComentadas = new JLabel("");
 		labelLineasComentadas.setHorizontalAlignment(SwingConstants.CENTER);
 		labelLineasComentadas.setForeground(new Color(0, 204, 153));
 		labelLineasComentadas.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelLineasComentadas.setBounds(913, 170, 102, 20);
+		labelLineasComentadas.setBounds(1271, 110, 60, 20);
 		contentPane.add(labelLineasComentadas);
 		
 		labelPorcLineasComentadas = new JLabel("");
 		labelPorcLineasComentadas.setHorizontalAlignment(SwingConstants.CENTER);
 		labelPorcLineasComentadas.setForeground(new Color(0, 204, 153));
 		labelPorcLineasComentadas.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelPorcLineasComentadas.setBounds(918, 230, 102, 20);
+		labelPorcLineasComentadas.setBounds(910, 230, 60, 20);
 		contentPane.add(labelPorcLineasComentadas);
 		
 		labelComplejidadCiclomatica = new JLabel("");
 		labelComplejidadCiclomatica.setHorizontalAlignment(SwingConstants.CENTER);
 		labelComplejidadCiclomatica.setForeground(new Color(0, 204, 153));
 		labelComplejidadCiclomatica.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelComplejidadCiclomatica.setBounds(877, 290, 102, 20);
+		labelComplejidadCiclomatica.setBounds(1241, 230, 60, 20);
 		contentPane.add(labelComplejidadCiclomatica);
 		
 		labelFanIn = new JLabel("");
 		labelFanIn.setHorizontalAlignment(SwingConstants.CENTER);
 		labelFanIn.setForeground(new Color(0, 204, 153));
 		labelFanIn.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelFanIn.setBounds(744, 350, 102, 20);
+		labelFanIn.setBounds(732, 350, 60, 20);
 		contentPane.add(labelFanIn);
 		
 		labelFanOut = new JLabel("");
 		labelFanOut.setHorizontalAlignment(SwingConstants.CENTER);
 		labelFanOut.setForeground(new Color(0, 204, 153));
 		labelFanOut.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelFanOut.setBounds(758, 410, 102, 20);
+		labelFanOut.setBounds(1122, 350, 60, 20);
 		contentPane.add(labelFanOut);
 		
 		labelHalsteadLongitud = new JLabel("");
 		labelHalsteadLongitud.setHorizontalAlignment(SwingConstants.CENTER);
 		labelHalsteadLongitud.setForeground(new Color(0, 204, 153));
 		labelHalsteadLongitud.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelHalsteadLongitud.setBounds(812, 470, 102, 20);
+		labelHalsteadLongitud.setBounds(807, 470, 60, 20);
 		contentPane.add(labelHalsteadLongitud);
 		
 		labelHalsteadVolumen = new JLabel("");
 		labelHalsteadVolumen.setHorizontalAlignment(SwingConstants.CENTER);
 		labelHalsteadVolumen.setForeground(new Color(0, 204, 153));
 		labelHalsteadVolumen.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-		labelHalsteadVolumen.setBounds(816, 530, 102, 20);
+		labelHalsteadVolumen.setBounds(1190, 470, 60, 20);
 		contentPane.add(labelHalsteadVolumen);
 		
 		JLabel lblOperandos = new JLabel("Operandos:");
 		lblOperandos.setForeground(Color.WHITE);
 		lblOperandos.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-		lblOperandos.setBounds(675, 606, 117, 29);
+		lblOperandos.setBounds(675, 586, 117, 29);
 		contentPane.add(lblOperandos);
 		
 		JLabel lblOperadores = new JLabel("Operadores:");
 		lblOperadores.setForeground(Color.WHITE);
 		lblOperadores.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-		lblOperadores.setBounds(675, 682, 117, 29);
+		lblOperadores.setBounds(675, 662, 117, 29);
 		contentPane.add(lblOperadores);
 
 		// Listeners

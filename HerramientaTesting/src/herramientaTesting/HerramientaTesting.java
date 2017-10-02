@@ -68,7 +68,9 @@ public class HerramientaTesting {
 	
 	private String operadoresAritmeticos = "|\\+|-|\\*|/";
 	
-	private String operadoresLogicos = "|&&|\\|\\||>|<|>=|<=|==|\\!=";
+	private String operadoresLogicos = "|&&|\\|\\";
+	
+	private String comparadores = ".*(>|<|>=|<=|==|\\!=).*";
 	
 	private String regexOperadores = palabrasReservadas + operadoresAritmeticos + operadoresLogicos + "|=";
 	
@@ -255,14 +257,15 @@ public class HerramientaTesting {
 	
 	private void getOperandosYOperadores(String linea) {
 		String token;
-		ArrayList<String> tokens;
+		ArrayList<String> tokens, contenidoPredicado, separacionPredicado, operandosPredicado = null;
+		boolean igual = false;
 		int operadoresLogicos;
 		if(linea.matches(regexNodosPredicado)) {
 			operadoresLogicos = 1;
-			if(linea.contains("{")) { operadores.add("{"); operadores.add("}"); cantOperadores++; }
 			
 			token = linea.replaceAll("!(for\\(.*\\)|if\\(.*\\)|switch\\(.*\\)|while\\(.*\\))", "");
 			
+			contenidoPredicado = new ArrayList<String>(Arrays.asList(token.replaceAll("for|if|switch|while", "").trim().split(" ")));
 			tokens = new ArrayList<String>(Arrays.asList(linea.split(" ")));
 			
 			for(String t : tokens) 
@@ -270,6 +273,78 @@ public class HerramientaTesting {
 					operadoresLogicos++;
 			
 			nodosPredicado += operadoresLogicos;
+			
+			for(String t : contenidoPredicado) {
+				separacionPredicado = new ArrayList<String>(Arrays.asList(t.split(";")));
+				
+				for(String s : separacionPredicado)
+					if(s.matches(comparadores)) {
+						igual = false;
+						if(s.contains(">=")) { igual = true; operadores.add(">="); operandosPredicado = new ArrayList<String>(Arrays.asList(s.split(">="))); }
+						else if(s.contains(">")) { operadores.add(">"); operandosPredicado = new ArrayList<String>(Arrays.asList(s.split(">"))); }
+						if(s.contains("<=")) { igual = true; operadores.add("<="); operandosPredicado = new ArrayList<String>(Arrays.asList(s.split("<="))); }
+						else if(s.contains("<")) { operadores.add("<"); operandosPredicado = new ArrayList<String>(Arrays.asList(s.split("<"))); }
+						if(s.contains("!=")) { igual = true; operadores.add("!="); operandosPredicado = new ArrayList<String>(Arrays.asList(s.split("!="))); }
+						else if(s.contains("==")) { igual = true; operadores.add("=="); operandosPredicado = new ArrayList<String>(Arrays.asList(s.split("=="))); }
+						else if(s.contains("=") && !igual) { operadores.add("=="); operandosPredicado = new ArrayList<String>(Arrays.asList(s.split("="))); }
+						if(s.contains("++")) { operadores.add("++"); cantOperadores++; }
+						if(s.contains("--")) { operadores.add("--"); cantOperadores++; } 
+							
+						cantOperadores++;
+						for(String p : operandosPredicado)
+							if(p.matches("[a-zA-Z](\\w|_)*") && !p.equals("null")) {
+								s = p.replaceAll("\\[.*\\]", "");
+								s = p.replace(";", "");
+								s = p.replace(",", "");
+								s = p.trim();
+								operandos.add(s);
+								cantOperandos++;
+							}
+					
+					}
+				
+				if(t.matches(regexOperadores)) {
+					t = t.replaceAll("\\[.*\\]", "");
+					t = t.replace(";", "");
+					t = t.replace(".", "");
+					t = t.trim();
+					operadores.add(t);
+					cantOperadores++;
+				
+			
+				} else {
+					
+					if(t.matches(comparadores)) {
+						if(t.contains(">=")) operadores.add(">=");
+						else if(t.contains(">")) operadores.add(">");
+						if(t.contains("<=")) operadores.add("<=");
+						else if(t.contains("<")) operadores.add("<");
+						if(t.contains("!=")) operadores.add("!=");
+						else if(t.contains("==")) operadores.add("==");
+						else if(t.contains("=")) operadores.add("==");
+							
+						cantOperadores++;
+					}
+					
+					if(t.matches(regexOperandos) && !t.equals("null")) {
+						t = t.replaceAll("\\[.*\\]", "");
+						t = t.replace(";", "");
+						t = t.replace(",", "");
+						t = t.trim();
+						operandos.add(t);
+						cantOperandos++;
+					}
+					
+					if(t.contains("[")) { operadores.add("["); operadores.add("]"); cantOperadores++; }
+					if(t.contains("(")) { operadores.add("("); operadores.add(")"); cantOperadores++; }
+					if(t.contains("{")) { operadores.add("{"); operadores.add("}"); cantOperadores++; }
+					if(t.contains(";")) { operadores.add(";"); operadores.add(";"); cantOperadores++; }
+					if(t.contains("++")) { operadores.add("++"); cantOperadores++; }
+					if(t.contains("--")) { operadores.add("--"); cantOperadores++; }
+					
+				} 
+			}
+			
 			
 			token = token.replaceAll("\\(.*", "");
 			token = token.trim();
@@ -298,11 +373,13 @@ public class HerramientaTesting {
 						t = t.trim();
 						operandos.add(t);
 						cantOperandos++;
+						System.out.println("OPERANDO: " + t);
 					}
 					
 					if(t.contains("[")) { operadores.add("["); operadores.add("]"); cantOperadores++; }
 					if(t.contains("(")) { operadores.add("("); operadores.add(")"); cantOperadores++; }
 					if(t.contains("{")) { operadores.add("{"); operadores.add("}"); cantOperadores++; }
+					if(t.contains(";")) { operadores.add(";"); operadores.add(";"); cantOperadores++; }
 					if(t.contains("++")) { operadores.add("++"); cantOperadores++; }
 					if(t.contains("--")) { operadores.add("--"); cantOperadores++; }
 					
