@@ -60,7 +60,7 @@ public class HerramientaTesting {
 	private String regexMetodo = "\\s*(public|private)\\s+(final|static|final\\sstatic)?.*nombreMetodo\\s*\\(.*\\).*\\{.*";
 	
 	
-	private String regexNodosPredicado = "for.*|if.*|switch.*|while.*";
+	private String regexNodosPredicado = "for.*|if.*|switch.*|while.*|try.*";
 	
 	private String palabrasReservadas = "(abstract|assert|boolean|break|byte|case|catch|char|char\\[.*\\]|class|const|continue|default|do|double|else|enum|"
 			+ "|extends|false|final|finally|float|float\\[.*\\]|goto|implements|import|instanceof|int|int\\[.*\\]|interface|long|long\\[.*\\]|native|new|package|private|protected|public|"
@@ -263,7 +263,7 @@ public class HerramientaTesting {
 		if(linea.matches(regexNodosPredicado)) {
 			operadoresLogicos = 1;
 			
-			token = linea.replaceAll("!(for\\(.*\\)|if\\(.*\\)|switch\\(.*\\)|while\\(.*\\))", "");
+			token = linea.replaceAll("!(for\\(.*\\)|if\\(.*\\)|switch\\(.*\\)|while\\(.*\\)|try\\(.*\\))", "");
 			
 			contenidoPredicado = new ArrayList<String>(Arrays.asList(token.replaceAll("for|if|switch|while", "").trim().split(" ")));
 			tokens = new ArrayList<String>(Arrays.asList(linea.split(" ")));
